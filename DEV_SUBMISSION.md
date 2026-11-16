@@ -26,15 +26,15 @@ These biological signals directly breathe life into:
 
 ## Demo
 
-- 🌐 **Marketing & Architecture Website:** [https://pulseverse.vercel.app](https://pulseverse.vercel.app) *(or hosted at `/website/index.html` in repo)*
-- 🎬 **Video Demonstration Script & Walkthrough:** [DEMO.md](https://github.com/Rishav-99/PulseVerse-SmartSpectra-Human-Sensing/blob/main/DEMO.md)
+- 🌐 **Live Website (GitHub Pages):** [https://genx0gravity.github.io/PulseVerse-Your-Body-Your-Universe/](https://genx0gravity.github.io/PulseVerse-Your-Body-Your-Universe/)
+- 🎬 **Video Demonstration Script & Walkthrough:** [DEMO.md](https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe/blob/main/DEMO.md)
 - 📦 **Packaged Windows Desktop Binary:** Ready-to-run Windows x64 distribution available under GitHub Releases (`release/win-unpacked/PulseVerse.exe`).
 
 ---
 
 ## Code
 
-- 💻 **GitHub Repository:** [https://github.com/Rishav-99/PulseVerse-SmartSpectra-Human-Sensing](https://github.com/Rishav-99/PulseVerse-SmartSpectra-Human-Sensing)
+- 💻 **GitHub Repository:** [https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe](https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe)
 - **License:** MIT Open Source License
 
 ---
@@ -82,7 +82,7 @@ Biometric sensing requires uncompromising ethics and privacy:
 | **Electron Security** | `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false`, strict CSP, and origin-locked camera permissions. |
 | **Session Control** | Clear Active Session (wipes RAM) and Purge All Records (deletes local JSON history) available at all times. |
 
-Read the full [PRIVACY.md](https://github.com/Rishav-99/PulseVerse-SmartSpectra-Human-Sensing/blob/main/PRIVACY.md) and [ARCHITECTURE.md](https://github.com/Rishav-99/PulseVerse-SmartSpectra-Human-Sensing/blob/main/ARCHITECTURE.md) for detailed technical specifications.
+Read the full [PRIVACY.md](https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe/blob/main/PRIVACY.md) and [ARCHITECTURE.md](https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe/blob/main/ARCHITECTURE.md) for detailed technical specifications.
 
 ---
 

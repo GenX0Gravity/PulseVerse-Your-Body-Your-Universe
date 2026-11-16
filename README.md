@@ -3,7 +3,7 @@
 > **A privacy-conscious, immersive human-sensing desktop experience powered by the Presage SmartSpectra SDK for the Presage SmartSpectra SDK Challenge 2026.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Electron%2033%2B-cyan.svg)](https://github.com/Rishav-99/PulseVerse-SmartSpectra-Human-Sensing)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20x64%20%7C%20Electron%2033%2B-cyan.svg)](https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe)
 [![Presage SDK](https://img.shields.io/badge/Presage%20SmartSpectra-v3.5.0-purple.svg)](https://presagetech.com/docs/smartspectra-sdk/nodejs)
 [![Tests](https://img.shields.io/badge/Vitest-36%20Passed-emerald.svg)](tests/)
 
@@ -130,7 +130,7 @@ PulseVerse can be navigated entirely hands-free via accessible keyboard shortcut
 
 ### 1. Installation
 ```bash
-git clone https://github.com/Rishav-99/PulseVerse-SmartSpectra-Human-Sensing.git
+git clone https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe.git
 cd PulseVerse-SmartSpectra-Human-Sensing
 npm install
 ```
@@ -163,7 +163,7 @@ npm run pack       # Builds standalone executable at release/win-unpacked/PulseV
 
 ## 🌐 Marketing Website & Video Guide
 
-- **Standalone Marketing Site:** Located at `/website/index.html` (deployable directly to Vercel/Netlify).
+- **Live Marketing Website:** [https://genx0gravity.github.io/PulseVerse-Your-Body-Your-Universe/](https://genx0gravity.github.io/PulseVerse-Your-Body-Your-Universe/) *(Deployable to Vercel via `vercel.json`)*
 - **Demonstration Video Script:** [DEMO.md](DEMO.md)
 - **Challenge Submission Details:** [DEV_SUBMISSION.md](DEV_SUBMISSION.md)
 - **Setup & Troubleshooting:** [SETUP.md](SETUP.md)
