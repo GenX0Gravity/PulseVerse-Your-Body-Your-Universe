@@ -1,3 +1,6 @@
+// Ensure Electron is never forced into Node-only mode by parent terminal/IDE environment
+delete process.env.ELECTRON_RUN_AS_NODE;
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import electron from 'vite-plugin-electron';
@@ -52,7 +55,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@smartspectra/node-sdk$': path.resolve(__dirname, './node_modules/@smartspectra/node-sdk/js/constants.js'),
     },
+  },
+  optimizeDeps: {
+    exclude: ['koffi'],
   },
   server: {
     port: 5173,
