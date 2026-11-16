@@ -4,11 +4,73 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import fs from 'fs';
 
-const require = createRequire(import.meta.url);
-const { bindSmartSpectraIpc } = require('@smartspectra/node-sdk/main');
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// In packaged Electron builds, native DLLs cannot be loaded from inside the virtual asar archive.
+// Explicitly resolve and set SMARTSPECTRA_CAPI_PATH to the physical disk location in app.asar.unpacked.
+if (!process.env.SMARTSPECTRA_CAPI_PATH) {
+  const candidatePaths = [
+    // Packaged build: process.resourcesPath/app.asar.unpacked/...
+    process.resourcesPath
+      ? path.join(
+          process.resourcesPath,
+          'app.asar.unpacked',
+          'node_modules',
+          '@smartspectra',
+          'node-sdk-win32-x64',
+          'smartspectra_capi.dll'
+        )
+      : '',
+    // Packaged build: relative from __dirname in dist-electron inside app.asar
+    path.join(
+      __dirname,
+      '../../app.asar.unpacked',
+      'node_modules',
+      '@smartspectra',
+      'node-sdk-win32-x64',
+      'smartspectra_capi.dll'
+    ),
+    // Adjacent to executable resources directory
+    path.join(
+      path.dirname(process.execPath),
+      'resources',
+      'app.asar.unpacked',
+      'node_modules',
+      '@smartspectra',
+      'node-sdk-win32-x64',
+      'smartspectra_capi.dll'
+    ),
+    // Development mode in workspace
+    path.join(
+      __dirname,
+      '../node_modules',
+      '@smartspectra',
+      'node-sdk-win32-x64',
+      'smartspectra_capi.dll'
+    ),
+  ];
+
+  for (const candidate of candidatePaths) {
+    if (candidate && fs.existsSync(candidate)) {
+      process.env.SMARTSPECTRA_CAPI_PATH = candidate;
+      const dllDir = path.dirname(candidate);
+      process.env.PATH = `${dllDir};${process.env.PATH}`;
+      console.log('[Native C-ABI] Configured SMARTSPECTRA_CAPI_PATH:', candidate);
+      break;
+    }
+  }
+}
+
+const require = createRequire(import.meta.url);
+let bindSmartSpectraIpc: any = null;
+try {
+  const sdkMain = require('@smartspectra/node-sdk/main');
+  bindSmartSpectraIpc = sdkMain.bindSmartSpectraIpc;
+} catch (loadErr: unknown) {
+  const err = loadErr as Error;
+  console.warn('[SmartSpectra] Native IPC module load notice:', err.message);
+}
 
 // Ensure single app instance
 const gotTheLock = app.requestSingleInstanceLock();
@@ -39,20 +101,24 @@ function createWindow(): BrowserWindow {
   });
 
   // Bind the official Presage SmartSpectra native runtime IPC bridge to the browser window
-  try {
-    bindSmartSpectraIpc(win, {
-      logger: (level, msg) => {
-        // Redact any potential credentials or bearer tokens from logging
-        const sanitized = typeof msg === 'string'
-          ? msg.replace(/(?:key|token|auth|bearer)[:=]\s*['"]?[a-zA-Z0-9_\-\.]{12,}['"]?/gi, '[REDACTED_CREDENTIAL]')
-          : msg;
-        console.log(`[SmartSpectra IPC ${level}]`, sanitized);
-      },
-    });
-    console.log('[SmartSpectra] Successfully bound native IPC bridge to BrowserWindow');
-  } catch (err: unknown) {
-    const error = err as Error;
-    console.warn('[SmartSpectra] Main process IPC binding notice:', error.message);
+  if (typeof bindSmartSpectraIpc === 'function') {
+    try {
+      bindSmartSpectraIpc(win, {
+        logger: (level: string, msg: unknown) => {
+          // Redact any potential credentials or bearer tokens from logging
+          const sanitized = typeof msg === 'string'
+            ? msg.replace(/(?:key|token|auth|bearer)[:=]\s*['"]?[a-zA-Z0-9_\-\.]{12,}['"]?/gi, '[REDACTED_CREDENTIAL]')
+            : msg;
+          console.log(`[SmartSpectra IPC ${level}]`, sanitized);
+        },
+      });
+      console.log('[SmartSpectra] Successfully bound native IPC bridge to BrowserWindow');
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.warn('[SmartSpectra] Main process IPC binding notice:', error.message);
+    }
+  } else {
+    console.warn('[SmartSpectra] bindSmartSpectraIpc is unavailable; continuing in UI/mock mode');
   }
 
   // Guard against untrusted external navigation
