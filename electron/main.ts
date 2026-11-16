@@ -102,6 +102,15 @@ function createWindow(): BrowserWindow {
     win.loadFile(path.join(__dirname, '../dist/index.html'));
   }
 
+  // Forward renderer console logs and errors to terminal for debugging
+  win.webContents.on('console-message', (event, level, message) => {
+    console.log(`[Renderer]`, message);
+  });
+
+  win.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    console.error('[Electron] Failed to load:', validatedURL, errorDescription, errorCode);
+  });
+
   win.once('ready-to-show', () => {
     win.show();
     if (isDev && process.env.VITE_ENABLE_DEVTOOLS === '1') {
