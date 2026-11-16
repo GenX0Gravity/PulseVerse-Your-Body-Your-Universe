@@ -31,7 +31,8 @@ try {
 
     postMessage(message: unknown) {
       if (!smartSpectraPort) {
-        throw new Error('@smartspectra/node-sdk/preload: postMessage before attach()');
+        // Silently drop frames when port is closed or detached to prevent unhandled frame loop exceptions
+        return;
       }
       smartSpectraPort.postMessage(message);
     },

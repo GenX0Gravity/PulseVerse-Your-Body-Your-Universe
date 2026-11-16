@@ -104,7 +104,7 @@ function createWindow(): BrowserWindow {
       preload: preloadCandidate,
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
+      sandbox: false,
       webSecurity: true,
     },
   });

@@ -22,6 +22,8 @@ export const CameraPreview: React.FC<CameraPreviewProps> = ({
   useEffect(() => {
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
+      videoRef.current.muted = true;
+      videoRef.current.defaultMuted = true;
       videoRef.current.play().catch((err) => {
         console.warn('Video playback notice:', err);
       });

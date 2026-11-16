@@ -24,6 +24,12 @@ export function useSmartSpectra() {
   const [stream, setStream] = useState<MediaStream | null>(service.getMediaStream());
 
   const simulationTimerRef = useRef<number | null>(null);
+  const apiKeyRef = useRef(apiKey);
+  apiKeyRef.current = apiKey;
+  const cameraDeviceIdRef = useRef(cameraDeviceId);
+  cameraDeviceIdRef.current = cameraDeviceId;
+  const hasConsentedRef = useRef(hasConsentedCamera);
+  hasConsentedRef.current = hasConsentedCamera;
 
   // Subscribe to service events
   useEffect(() => {
@@ -88,14 +94,14 @@ export function useSmartSpectra() {
   const startLive = useCallback(async () => {
     try {
       await service.startSession({
-        apiKey,
-        deviceId: cameraDeviceId || undefined,
-        hasUserConsented: hasConsentedCamera,
+        apiKey: apiKeyRef.current,
+        deviceId: cameraDeviceIdRef.current || undefined,
+        hasUserConsented: hasConsentedRef.current,
       });
     } catch (err) {
       console.warn('[useSmartSpectra] startLive notice:', err);
     }
-  }, [service, apiKey, cameraDeviceId, hasConsentedCamera]);
+  }, [service]);
 
   // Stop live session
   const stopLive = useCallback(async () => {
