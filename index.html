@@ -85,6 +85,12 @@
       </div>
 
       <div class="flex items-center gap-3">
+        <button id="audio-toggle-btn" class="px-3 py-2 rounded-xl text-xs font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-cosmic-cyan transition flex items-center gap-1.5" title="Play Beethoven's Für Elise">
+          <span id="audio-icon">▶</span>
+          <span id="audio-label">Für Elise</span>
+        </button>
+        <audio id="bg-audio-el" loop src="./audio/fur-elise.wav"></audio>
+
         <a href="https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe" target="_blank" class="px-4 py-2 rounded-xl text-xs font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-white transition">
           GitHub
         </a>
@@ -470,6 +476,32 @@
       requestAnimationFrame(render);
     }
     render();
+
+    // Für Elise Audio Controller
+    const audioBtn = document.getElementById('audio-toggle-btn');
+    const audioEl = document.getElementById('bg-audio-el');
+    const audioIcon = document.getElementById('audio-icon');
+    const audioLabel = document.getElementById('audio-label');
+    let isPlaying = false;
+
+    if (audioBtn && audioEl) {
+      audioBtn.addEventListener('click', () => {
+        if (!isPlaying) {
+          audioEl.play().then(() => {
+            isPlaying = true;
+            audioIcon.textContent = '⏸';
+            audioLabel.textContent = 'Pause';
+            audioBtn.classList.add('border-cosmic-cyan', 'text-cosmic-cyan');
+          }).catch(() => {});
+        } else {
+          audioEl.pause();
+          isPlaying = false;
+          audioIcon.textContent = '▶';
+          audioLabel.textContent = 'Für Elise';
+          audioBtn.classList.remove('border-cosmic-cyan', 'text-cosmic-cyan');
+        }
+      });
+    }
   </script>
 </body>
 </html>
