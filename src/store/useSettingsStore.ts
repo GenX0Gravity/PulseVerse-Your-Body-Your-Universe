@@ -21,7 +21,7 @@ interface SettingsState {
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
-  apiKey: import.meta.env.VITE_SMARTSPECTRA_API_KEY || '',
+  apiKey: import.meta.env.VITE_SMARTSPECTRA_API_KEY || '9RENVLzcBk7eqSMacoi4khdlGLFGYpf60NiVd0Lf',
   cameraDeviceId: '',
   enableCardioMetrics: true,
   enableBreathingMetrics: true,

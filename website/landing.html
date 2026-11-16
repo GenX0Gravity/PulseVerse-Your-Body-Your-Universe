@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseVerse — Your Body, Your Universe | Presage SmartSpectra SDK Challenge 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            midnight: {
+              950: '#03050a',
+              900: '#070a14',
+              850: '#0b1122',
+              800: '#101830',
+            },
+            cosmic: {
+              cyan: '#00f2fe',
+              violet: '#7928ca',
+              magenta: '#ff0080',
+              emerald: '#10b981',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            display: ['Cinzel', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-card {
+      background: rgba(11, 17, 34, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-glow {
+      background: rgba(11, 17, 34, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.08);
+    }
+    .text-glow {
+      text-shadow: 0 0 24px rgba(0, 242, 254, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-midnight-950 text-slate-200 font-sans selection:bg-cosmic-cyan/30 selection:text-white min-h-screen">
+
+  <!-- Ambient Background Glows -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+    <div class="absolute -top-40 left-1/4 w-96 h-96 bg-cosmic-cyan/15 rounded-full blur-[140px]"></div>
+    <div class="absolute top-1/3 -right-20 w-96 h-96 bg-cosmic-violet/20 rounded-full blur-[160px]"></div>
+    <div class="absolute bottom-10 left-10 w-96 h-96 bg-cosmic-magenta/10 rounded-full blur-[150px]"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 inset-x-0 z-50 glass-card border-b border-white/10 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cosmic-cyan to-cosmic-violet flex items-center justify-center font-display font-bold text-white shadow-lg shadow-cosmic-cyan/20">
+          PV
+        </div>
+        <div>
+          <span class="font-display font-bold text-lg text-white tracking-wide">PulseVerse</span>
+          <span class="text-[10px] font-mono block text-cosmic-cyan tracking-wider">SMARTSPECTRA 2026</span>
+        </div>
+      </div>
+
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#features" class="hover:text-cosmic-cyan transition">Environments</a>
+        <a href="#experiences" class="hover:text-cosmic-cyan transition">Experiences</a>
+        <a href="#privacy" class="hover:text-cosmic-cyan transition">Privacy & Architecture</a>
+        <a href="#quickstart" class="hover:text-cosmic-cyan transition">Quickstart</a>
+        <a href="#specs" class="hover:text-cosmic-cyan transition">Specifications</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="audio-toggle-btn" class="px-3 py-2 rounded-xl text-xs font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-cosmic-cyan transition flex items-center gap-1.5" title="Play Beethoven's Für Elise">
+          <span id="audio-icon">▶</span>
+          <span id="audio-label">Für Elise</span>
+        </button>
+        <audio id="bg-audio-el" loop src="./audio/fur-elise.wav"></audio>
+
+        <a href="/" class="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-cosmic-cyan border border-cosmic-cyan/40 transition shadow-lg shadow-cosmic-cyan/10">
+          🚀 Launch Live App
+        </a>
+        <a href="https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe" target="_blank" class="px-4 py-2 rounded-xl text-xs font-mono bg-white/5 hover:bg-white/10 border border-white/10 text-white transition">
+          GitHub
+        </a>
+        <a href="#download" class="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-cosmic-cyan to-blue-500 hover:brightness-110 text-midnight-950 transition shadow-lg shadow-cosmic-cyan/20">
+          Get Desktop App
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="pt-36 pb-20 px-6 max-w-7xl mx-auto text-center relative">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cosmic-cyan/10 border border-cosmic-cyan/30 text-cosmic-cyan text-xs font-mono mb-6">
+      <span class="w-2 h-2 rounded-full bg-cosmic-cyan animate-pulse"></span>
+      Presage SmartSpectra SDK Challenge 2026 Submission
+    </div>
+
+    <h1 class="text-4xl sm:text-6xl lg:text-7xl font-display font-extrabold text-white tracking-tight leading-[1.1] mb-6">
+      Your Body, <span class="bg-gradient-to-r from-cosmic-cyan via-purple-300 to-cosmic-magenta bg-clip-text text-transparent text-glow">Your Universe.</span>
+    </h1>
+
+    <p class="max-w-3xl mx-auto text-base sm:text-xl text-slate-300 leading-relaxed mb-10 font-normal">
+      An immersive, privacy-conscious human-sensing desktop experience. Transforming real camera-derived pulse and breathing signals into living, reactive cosmoses using the official Presage SmartSpectra SDK.
+    </p>
+
+    <!-- Notice Badge -->
+    <div class="max-w-2xl mx-auto mb-10 p-4 rounded-2xl bg-midnight-900/90 border border-amber-500/30 text-amber-200 text-xs text-left flex items-start gap-3 shadow-xl">
+      <span class="text-base shrink-0">⚠️</span>
+      <div>
+        <strong class="text-white">Desktop Application Required for Real Sensing:</strong> Camera rPPG extraction, raw arterial pulse waves, and thoracic respiration signals require the native Presage C ABI engine running inside the secure Electron desktop application on Windows x64.
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a href="#download" class="px-8 py-3.5 rounded-xl font-bold text-sm bg-gradient-to-r from-cosmic-cyan to-blue-500 hover:brightness-110 text-midnight-950 transition shadow-xl shadow-cosmic-cyan/25 flex items-center gap-2">
+        <span>Download Desktop Installer (.exe)</span>
+        <span>↓</span>
+      </a>
+      <a href="https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe" target="_blank" class="px-8 py-3.5 rounded-xl font-medium text-sm glass-card hover:bg-white/10 text-white transition flex items-center gap-2">
+        <span>View Source Code</span>
+        <span>↗</span>
+      </a>
+    </div>
+
+    <!-- Live Interactive Waveform Canvas Preview -->
+    <div class="mt-16 max-w-5xl mx-auto rounded-3xl glass-card-glow p-2 relative overflow-hidden shadow-2xl">
+      <div class="rounded-2xl bg-midnight-900 overflow-hidden relative">
+        <canvas id="heroCanvas" class="w-full h-80 sm:h-96 block"></canvas>
+        <div class="absolute bottom-4 left-6 right-6 flex items-center justify-between text-xs font-mono text-slate-400">
+          <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400"></span> Cardiac Pulse: 72 BPM</span>
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> Respiration: 14.5 BrPM</span>
+          </div>
+          <span class="text-slate-500 hidden sm:inline">Harmonic Coherence: 88%</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 3 Living Environments -->
+  <section id="features" class="py-20 px-6 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-cosmic-cyan mb-2">Real-Time Biological Rendering</h2>
+      <p class="text-3xl sm:text-4xl font-display font-bold text-white">Three Interactive Living Worlds</p>
+      <p class="text-sm text-slate-400 mt-3">Driven by real rPPG arterial pulse waves and thoracic displacement waveforms, not arbitrary random timers.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Heartbeat Universe -->
+      <div class="glass-card rounded-2xl p-6 relative overflow-hidden group hover:border-cosmic-cyan/40 transition">
+        <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 text-xl mb-4">
+          ♥
+        </div>
+        <h3 class="text-xl font-display font-bold text-white mb-2">Heartbeat Universe</h3>
+        <p class="text-xs text-slate-300 leading-relaxed mb-4">
+          Over 2,500 glowing celestial particles orbiting a pulsing solar core. Arterial waveform peaks send radial gravity shockwaves through the starfield with each cardiac cycle.
+        </p>
+        <div class="text-[11px] font-mono text-slate-400 pt-3 border-t border-white/5 space-y-1">
+          <div>• Real arterial waveform crest mapping</div>
+          <div>• Dynamic velocity field excitation</div>
+          <div>• Chromatic temperature shifts</div>
+        </div>
+      </div>
+
+      <!-- Breathing Garden -->
+      <div class="glass-card rounded-2xl p-6 relative overflow-hidden group hover:border-cyan-400/40 transition">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl mb-4">
+          ≋
+        </div>
+        <h3 class="text-xl font-display font-bold text-white mb-2">Breathing Garden</h3>
+        <p class="text-xs text-slate-300 leading-relaxed mb-4">
+          A bioluminescent ethereal botanical grove. Thoracic expansion rhythmically breathes life into glowing petals, bio-spores, and undulating tendrils across 4 distinct visual realms.
+        </p>
+        <div class="text-[11px] font-mono text-slate-400 pt-3 border-t border-white/5 space-y-1">
+          <div>• Thoracic kinematics & respiration tracking</div>
+          <div>• Calibrated botanical petal expansion</div>
+          <div>• Forest, Lotus, Deep Sea, and Nebula biomes</div>
+        </div>
+      </div>
+
+      <!-- Harmony Environment -->
+      <div class="glass-card rounded-2xl p-6 relative overflow-hidden group hover:border-purple-400/40 transition">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl mb-4">
+          ✦
+        </div>
+        <h3 class="text-xl font-display font-bold text-white mb-2">Harmony Mode</h3>
+        <p class="text-xs text-slate-300 leading-relaxed mb-4">
+          Dual biological coupling. Cardiac micro-fluctuations modulate celestial motion while respiratory depth commands dimensional scale and spatial depth in real-time.
+        </p>
+        <div class="text-[11px] font-mono text-slate-400 pt-3 border-t border-white/5 space-y-1">
+          <div>• Cardiopulmonary coherence computation</div>
+          <div>• Coupled dual-signal geometry deformation</div>
+          <div>• Non-judgmental somatic exploration</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 Interactive Experiences -->
+  <section id="experiences" class="py-20 px-6 max-w-7xl mx-auto border-t border-white/5">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-cosmic-cyan mb-2">Beyond Passivity</h2>
+      <p class="text-3xl sm:text-4xl font-display font-bold text-white">Three Interactive Bio-Experiences</p>
+      <p class="text-sm text-slate-400 mt-3">Empowering meaningful, creative human connection with bodily physiology.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="glass-card rounded-2xl p-6">
+        <span class="px-2.5 py-1 rounded-md text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-3 inline-block">EXPERIENCE 01</span>
+        <h3 class="text-lg font-display font-bold text-white mb-2">Breathing Bloom</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          A sacred geometric flower that blossoms with inhalation and gently folds inward upon exhalation. Includes optional Box, 4-7-8, and Coherence visual breathing pacing cues.
+        </p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6">
+        <span class="px-2.5 py-1 rounded-md text-[10px] font-mono bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-3 inline-block">EXPERIENCE 02</span>
+        <h3 class="text-lg font-display font-bold text-white mb-2">Pulse Constellation</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Generates a unique session star system. Each detected pulse beat spawns a radiant nova. Export private visual artwork free of camera video or personal identifiers.
+        </p>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6">
+        <span class="px-2.5 py-1 rounded-md text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-3 inline-block">EXPERIENCE 03</span>
+        <h3 class="text-lg font-display font-bold text-white mb-2">Harmony Quest</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          A serene somatic discovery journey across 5 elemental visual realms (Mist, Dawn, Starlight, Eclipse, Aurora) responding to natural cardiopulmonary synchronization.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Privacy, Security, & Ethics -->
+  <section id="privacy" class="py-20 px-6 max-w-7xl mx-auto border-t border-white/5">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <h2 class="text-xs font-mono uppercase tracking-widest text-emerald-400 mb-2">Zero-Leakage Guarantee</h2>
+        <p class="text-3xl sm:text-4xl font-display font-bold text-white mb-6">Privacy-by-Design Architecture</p>
+        <p class="text-sm text-slate-300 leading-relaxed mb-6">
+          PulseVerse was built under strict ethical protocols. Biometric sensing requires absolute trust, and PulseVerse ensures zero camera frames or vitals leave your local computer.
+        </p>
+
+        <div class="space-y-4 text-xs">
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">✓</div>
+            <div>
+              <strong class="text-white">Volatile RAM Processing Only:</strong> Camera frames exist solely in volatile system memory during optical rPPG extraction and are immediately discarded.
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">✓</div>
+            <div>
+              <strong class="text-white">Telemetry Disabled:</strong> SmartSpectra SDK initialized with <code class="text-cosmic-cyan">enableTelemetry: false</code>. No diagnostic usage telemetry is sent to Presage.
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">✓</div>
+            <div>
+              <strong class="text-white">Electron Multi-Process Hardening:</strong> Strict context isolation, renderer sandboxing enabled, and Node integration disabled.
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">✓</div>
+            <div>
+              <strong class="text-white">Non-Medical Informational Tool:</strong> For general wellness and artistic biofeedback only. Does not diagnose diseases or score mental anxiety.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card-glow rounded-3xl p-8 space-y-4 font-mono text-xs text-slate-300">
+        <div class="text-emerald-400 font-bold border-b border-white/10 pb-3 flex items-center justify-between">
+          <span>// SECURITY & ISOLATION MANIFEST</span>
+          <span class="text-[10px] text-slate-500">v1.0.0</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-white/5">
+          <span class="text-slate-400">Camera Auto-Activation:</span>
+          <span class="text-rose-400">NEVER (Explicit Consent Only)</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-white/5">
+          <span class="text-slate-400">Video Storage:</span>
+          <span class="text-emerald-400">ZERO (No recording / No disk writes)</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-white/5">
+          <span class="text-slate-400">Face Recognition:</span>
+          <span class="text-emerald-400">DISABLED (No biometric database)</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-white/5">
+          <span class="text-slate-400">SDK Telemetry Flag:</span>
+          <span class="text-cosmic-cyan">enableTelemetry: false</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-white/5">
+          <span class="text-slate-400">API Key Persistence:</span>
+          <span class="text-purple-300">Volatile RAM Only</span>
+        </div>
+        <div class="flex justify-between py-1">
+          <span class="text-slate-400">License Verification:</span>
+          <span class="text-slate-400">https://*.presagetech.com (HTTPS)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quickstart & Specs -->
+  <section id="quickstart" class="py-20 px-6 max-w-7xl mx-auto border-t border-white/5">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-cosmic-cyan mb-2">Developer Setup</h2>
+      <p class="text-3xl sm:text-4xl font-display font-bold text-white">Running Locally</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div class="glass-card rounded-2xl p-6 font-mono text-xs space-y-4">
+        <div class="text-cosmic-cyan font-bold">1. Clone & Install Dependencies</div>
+        <div class="bg-midnight-950 p-4 rounded-xl border border-white/5 text-slate-300 select-all overflow-x-auto">
+          git clone https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe.git<br>
+          cd PulseVerse-SmartSpectra-Human-Sensing<br>
+          npm install
+        </div>
+
+        <div class="text-cosmic-cyan font-bold">2. Configure Developer License Key</div>
+        <div class="bg-midnight-950 p-4 rounded-xl border border-white/5 text-slate-300 select-all overflow-x-auto">
+          cp .env.example .env<br>
+          # Add PRESAGE_API_KEY=your_key_here
+        </div>
+
+        <div class="text-cosmic-cyan font-bold">3. Launch Live Electron Desktop App</div>
+        <div class="bg-midnight-950 p-4 rounded-xl border border-white/5 text-slate-300 select-all overflow-x-auto">
+          npm run dev
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-6 space-y-4 text-xs">
+        <h3 class="text-base font-display font-bold text-white">System & Hardware Requirements</h3>
+        <ul class="space-y-2 text-slate-300">
+          <li class="flex items-center gap-2">
+            <span class="text-cosmic-cyan">▸</span>
+            <span><strong>Operating System:</strong> Windows 10/11 x64 (Native C ABI package included)</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-cosmic-cyan">▸</span>
+            <span><strong>Webcam:</strong> 720p @ 30 FPS USB or built-in webcam with consistent lighting</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-cosmic-cyan">▸</span>
+            <span><strong>GPU:</strong> WebGL 2.0 capable graphics card for Three.js shaders</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-cosmic-cyan">▸</span>
+            <span><strong>SDK Version:</strong> @smartspectra/node-sdk v3.5.0 with koffi pure-ABI</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="text-cosmic-cyan">▸</span>
+            <span><strong>Node Runtime:</strong> Node.js 20+ / Electron 33+</span>
+          </li>
+        </ul>
+
+        <div class="p-4 rounded-xl bg-midnight-950 border border-white/5 text-slate-400 mt-4">
+          <strong class="text-white block mb-1">Simulated Demo Mode Included:</strong>
+          No camera or API key? Switch to Demo Mode (`M` key) at any time to experience the complete audio-visual cosmos powered by physiological mathematical models.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Download & Footer -->
+  <section id="download" class="py-20 px-6 max-w-4xl mx-auto text-center border-t border-white/5">
+    <h2 class="text-3xl sm:text-4xl font-display font-bold text-white mb-4">Experience PulseVerse</h2>
+    <p class="text-sm text-slate-300 max-w-xl mx-auto mb-8">
+      Download the production Windows desktop application or explore the open-source repository.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4 mb-16">
+      <a href="https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe/releases" target="_blank" class="px-8 py-4 rounded-2xl font-bold text-sm bg-gradient-to-r from-cosmic-cyan to-blue-500 hover:brightness-110 text-midnight-950 transition shadow-xl shadow-cosmic-cyan/25 flex items-center gap-2">
+        <span>Download for Windows (.exe)</span>
+        <span>↓</span>
+      </a>
+      <a href="https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe" target="_blank" class="px-8 py-4 rounded-2xl font-semibold text-sm glass-card hover:bg-white/10 text-white transition flex items-center gap-2">
+        <span>GitHub Repository</span>
+        <span>↗</span>
+      </a>
+    </div>
+
+    <footer class="pt-10 border-t border-white/10 text-xs text-slate-500 font-mono flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>© 2026 PulseVerse Team. Built for Presage SmartSpectra SDK Challenge.</div>
+      <div class="flex gap-4 text-slate-400">
+        <a href="#privacy" class="hover:text-white">Privacy</a>
+        <a href="https://presagetech.com/docs/smartspectra-sdk/nodejs" target="_blank" class="hover:text-white">SDK Docs</a>
+        <a href="https://dev.to/challenges" target="_blank" class="hover:text-white">DEV Challenge</a>
+      </div>
+    </footer>
+  </section>
+
+  <!-- Hero Interactive Waveform Animation Script -->
+  <script>
+    const canvas = document.getElementById('heroCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height;
+
+    function resize() {
+      width = canvas.width = canvas.parentElement.clientWidth;
+      height = canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    let t = 0;
+    function render() {
+      t += 0.03;
+      ctx.fillStyle = '#070a14';
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw subtle grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      const step = 40;
+      for (let x = 0; x < width; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Draw Arterial Pulse Wave (Rose)
+      ctx.beginPath();
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#f43f5e';
+      ctx.shadowBlur = 12;
+      for (let x = 0; x < width; x++) {
+        const beatFreq = (x * 0.03 - t * 2.2);
+        const cardiacShape = Math.sin(beatFreq) * Math.exp(Math.cos(beatFreq));
+        const y = height * 0.35 + cardiacShape * 22;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Draw Respiration Wave (Cyan)
+      ctx.beginPath();
+      ctx.strokeStyle = '#00f2fe';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#00f2fe';
+      ctx.shadowBlur = 14;
+      for (let x = 0; x < width; x++) {
+        const breathShape = Math.sin(x * 0.008 - t * 0.45);
+        const y = height * 0.65 + breathShape * 32;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+      requestAnimationFrame(render);
+    }
+    render();
+
+    // Für Elise Audio Controller
+    const audioBtn = document.getElementById('audio-toggle-btn');
+    const audioEl = document.getElementById('bg-audio-el');
+    const audioIcon = document.getElementById('audio-icon');
+    const audioLabel = document.getElementById('audio-label');
+    let isPlaying = false;
+
+    if (audioBtn && audioEl) {
+      audioBtn.addEventListener('click', () => {
+        if (!isPlaying) {
+          audioEl.play().then(() => {
+            isPlaying = true;
+            audioIcon.textContent = '⏸';
+            audioLabel.textContent = 'Pause';
+            audioBtn.classList.add('border-cosmic-cyan', 'text-cosmic-cyan');
+          }).catch(() => {});
+        } else {
+          audioEl.pause();
+          isPlaying = false;
+          audioIcon.textContent = '▶';
+          audioLabel.textContent = 'Für Elise';
+          audioBtn.classList.remove('border-cosmic-cyan', 'text-cosmic-cyan');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
