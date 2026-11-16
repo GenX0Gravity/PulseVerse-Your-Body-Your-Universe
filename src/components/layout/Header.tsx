@@ -333,8 +333,8 @@ export const Header: React.FC = () => {
               ? 'bg-purple-500/20 border-purple-500/40 text-purple-300 shadow-glow-violet'
               : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
           )}
-          title={!isAudioMuted ? 'Mute Soothing Ambient Music (432Hz)' : 'Play Calm Meditative Music (432Hz)'}
-          aria-label={!isAudioMuted ? 'Mute Ambient Music' : 'Play Ambient Music'}
+          title={!isAudioMuted ? 'Mute Background Music (Beethoven — Für Elise)' : 'Play Background Music (Beethoven — Für Elise)'}
+          aria-label={!isAudioMuted ? 'Mute Background Music' : 'Play Background Music (Beethoven — Für Elise)'}
         >
           {!isAudioMuted ? (
             <Volume2 className="w-4 h-4 text-purple-300 animate-pulse-slow" />
