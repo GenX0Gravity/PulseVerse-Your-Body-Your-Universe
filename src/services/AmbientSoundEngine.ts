@@ -31,7 +31,10 @@ export class AmbientSoundEngine {
 
     try {
       const audio = new Audio();
-      audio.src = './audio/fur-elise.wav';
+      const baseAudioUrl = (typeof window !== 'undefined' && window.location.protocol.startsWith('http'))
+        ? `${window.location.origin}/audio/fur-elise.wav`
+        : './audio/fur-elise.wav';
+      audio.src = baseAudioUrl;
       audio.loop = true;
       audio.preload = 'auto';
       audio.volume = this.volume;

@@ -105,6 +105,13 @@ export const WelcomeView: React.FC = () => {
           <span>Read Privacy & Technical Architecture Walkthrough</span>
         </button>
         <span className="hidden sm:inline text-slate-600">•</span>
+        <a
+          href="./landing.html"
+          className="text-slate-400 hover:text-cosmic-cyan transition flex items-center gap-1 font-semibold"
+        >
+          <span>Showcase & Docs</span>
+        </a>
+        <span className="hidden sm:inline text-slate-600">•</span>
         <div className="flex items-center gap-1.5 text-slate-500">
           <Sparkles className="w-3.5 h-3.5 text-cosmic-cyan" />
           <span>Powered by @smartspectra/node-sdk v3.5.0 Pure-FFI</span>

@@ -1,9 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": null,
-  "outputDirectory": "website",
+  "buildCommand": "npm run build:web",
+  "outputDirectory": "dist",
   "cleanUrls": true,
   "rewrites": [
+    {
+      "source": "/landing",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/landing.html"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

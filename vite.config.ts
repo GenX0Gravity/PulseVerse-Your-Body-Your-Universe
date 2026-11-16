@@ -6,12 +6,14 @@ import react from '@vitejs/plugin-react';
 import electron from 'vite-plugin-electron';
 import path from 'path';
 
+const isWeb = process.env.VITE_TARGET === 'web' || process.env.VERCEL === '1';
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: './',
+  base: isWeb ? '/' : './',
   plugins: [
     react(),
-    electron([
+    !isWeb && electron([
       {
         // Main process entry point (built as CommonJS for reliable native Electron runtime compatibility)
         entry: 'electron/main.ts',
@@ -56,7 +58,7 @@ export default defineConfig({
         },
       },
     ]),
-  ],
+  ].filter(Boolean) as any,
   resolve: {
     alias: [
       { find: '@', replacement: path.resolve(__dirname, './src') },
