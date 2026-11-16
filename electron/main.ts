@@ -82,6 +82,11 @@ let mainWindow: BrowserWindow | null = null;
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
 function createWindow(): BrowserWindow {
+  const preloadCandidate = [
+    path.join(__dirname, 'preload.cjs'),
+    path.join(__dirname, 'preload.js'),
+  ].find((p) => fs.existsSync(p)) || path.join(__dirname, 'preload.cjs');
+
   const win = new BrowserWindow({
     width: 1440,
     height: 920,
@@ -92,7 +97,7 @@ function createWindow(): BrowserWindow {
     backgroundColor: '#070a14',
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: preloadCandidate,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,

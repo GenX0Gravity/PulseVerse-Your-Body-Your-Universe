@@ -4,11 +4,11 @@ delete process.env.ELECTRON_RUN_AS_NODE;
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import electron from 'vite-plugin-electron';
-import renderer from 'vite-plugin-electron-renderer';
 import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     electron([
@@ -31,32 +31,33 @@ export default defineConfig({
         },
       },
       {
-        // Preload script entry point
+        // Preload script entry point (must be CommonJS for Chromium preload isolate)
         entry: 'electron/preload.ts',
         onstart(options) {
           options.reload();
         },
         vite: {
           build: {
+            lib: {
+              entry: 'electron/preload.ts',
+              formats: ['cjs'],
+              fileName: () => 'preload.cjs',
+            },
             outDir: 'dist-electron',
             rollupOptions: {
-              external: [
-                'electron',
-                '@smartspectra/node-sdk',
-                '@smartspectra/node-sdk/preload',
-              ],
+              external: ['electron'],
             },
           },
         },
       },
     ]),
-    renderer(),
   ],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@smartspectra/node-sdk$': path.resolve(__dirname, './node_modules/@smartspectra/node-sdk/js/constants.js'),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      // Direct renderer imports of @smartspectra/node-sdk strictly to constants.js (browser-safe, zero koffi)
+      { find: /^@smartspectra\/node-sdk$/, replacement: path.resolve(__dirname, './node_modules/@smartspectra/node-sdk/js/constants.js') },
+    ],
   },
   optimizeDeps: {
     exclude: ['koffi'],
@@ -68,16 +69,6 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    rollupOptions: {
-      external: [
-        'koffi',
-        '@smartspectra/node-sdk',
-        '@smartspectra/node-sdk/renderer',
-        '@smartspectra/node-sdk/main',
-        '@smartspectra/node-sdk/preload',
-        '@smartspectra/node-sdk/messages',
-      ],
-    },
   },
   // @ts-expect-error vitest config
   test: {
