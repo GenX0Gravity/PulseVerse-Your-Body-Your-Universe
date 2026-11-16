@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Modal } from '../common/Modal';
 import { OnboardingWalkthroughModal } from '../common/OnboardingWalkthroughModal';
+import { FloatingCameraHUD } from '../camera/FloatingCameraHUD';
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation';
 import { useSmartSpectra } from '../../hooks/useSmartSpectra';
 
@@ -41,6 +42,9 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
           </main>
         </div>
       </div>
+
+      {/* Floating Picture-in-Picture Camera & Biometric HUD */}
+      <FloatingCameraHUD />
 
       {/* Onboarding & Privacy Architecture Walkthrough */}
       <OnboardingWalkthroughModal

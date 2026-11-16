@@ -72,6 +72,9 @@ window.pulseVerse = {
   maximize: vi.fn().mockResolvedValue(true),
   close: vi.fn().mockResolvedValue(undefined),
   isMaximized: vi.fn().mockResolvedValue(false),
+  toggleFullScreen: vi.fn().mockResolvedValue(true),
+  isFullScreen: vi.fn().mockResolvedValue(false),
+  onFullScreenChange: vi.fn().mockReturnValue(() => {}),
   getAppInfo: vi.fn().mockResolvedValue({
     version: '1.0.0',
     name: 'PulseVerse',

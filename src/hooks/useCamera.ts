@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSettingsStore } from '../store/useSettingsStore';
+import { SmartSpectraService } from '../services/SmartSpectraService';
 
 export interface CameraDeviceInfo {
   deviceId: string;
@@ -45,6 +46,11 @@ export function useCamera() {
     };
   }, [cameraDeviceId, setCameraDeviceId]);
 
+  const selectDevice = async (deviceId: string) => {
+    setCameraDeviceId(deviceId);
+    await SmartSpectraService.getInstance().switchCameraDevice(deviceId);
+  };
+
   const requestPermission = async (): Promise<boolean> => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -62,7 +68,7 @@ export function useCamera() {
   return {
     devices,
     selectedDeviceId: cameraDeviceId,
-    setSelectedDeviceId: setCameraDeviceId,
+    setSelectedDeviceId: selectDevice,
     hasPermission,
     requestPermission,
   };

@@ -62,6 +62,15 @@ contextBridge.exposeInMainWorld('pulseVerse', {
   maximize: () => ipcRenderer.invoke('pulseverse:window-maximize'),
   close: () => ipcRenderer.invoke('pulseverse:window-close'),
   isMaximized: () => ipcRenderer.invoke('pulseverse:is-maximized'),
+  toggleFullScreen: () => ipcRenderer.invoke('pulseverse:window-toggle-fullscreen'),
+  isFullScreen: () => ipcRenderer.invoke('pulseverse:is-fullscreen'),
+  onFullScreenChange: (callback: (isFull: boolean) => void) => {
+    const listener = (_event: unknown, isFull: boolean) => callback(isFull);
+    ipcRenderer.on('pulseverse:fullscreen-changed', listener);
+    return () => {
+      ipcRenderer.removeListener('pulseverse:fullscreen-changed', listener);
+    };
+  },
 
   // Application environment & diagnostics
   getAppInfo: () => ipcRenderer.invoke('pulseverse:get-app-info'),

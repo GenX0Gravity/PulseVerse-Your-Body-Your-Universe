@@ -4,7 +4,7 @@
   "productName": "PulseVerse",
   "copyright": "Copyright © 2026 PulseVerse Team. All rights reserved.",
   "directories": {
-    "output": "release",
+    "output": "release-app",
     "buildResources": "build"
   },
   "files": [

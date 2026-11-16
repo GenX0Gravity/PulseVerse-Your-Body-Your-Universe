@@ -1,5 +1,18 @@
 import { useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
+import { ActiveView } from '../types/experiences';
+import { AmbientSoundEngine } from '../services/AmbientSoundEngine';
+
+const VIEW_ORDER: ActiveView[] = [
+  'dashboard',
+  'live-sensing',
+  'pulse-universe',
+  'breathing-garden',
+  'harmony',
+  'interactive',
+  'summary',
+  'settings',
+];
 
 export function useKeyboardNavigation(onOpenHelp?: () => void) {
   const {
@@ -15,13 +28,56 @@ export function useKeyboardNavigation(onOpenHelp?: () => void) {
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      // Ignore key events when typing inside input or textarea
+      // Ignore key events when typing inside input, textarea, or select
       if (
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLTextAreaElement ||
         event.target instanceof HTMLSelectElement
       ) {
         return;
+      }
+
+      // Fullscreen shortcuts (F11 or F)
+      if (event.key === 'F11' || event.key === 'f' || event.key === 'F') {
+        event.preventDefault();
+        if (window.pulseVerse?.toggleFullScreen) {
+          window.pulseVerse.toggleFullScreen().catch(console.warn);
+        } else if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+        return;
+      }
+
+      // Exit fullscreen with Escape
+      if (event.key === 'Escape') {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else if (window.pulseVerse?.isFullScreen) {
+          window.pulseVerse.isFullScreen().then((full) => {
+            if (full && window.pulseVerse?.toggleFullScreen) {
+              window.pulseVerse.toggleFullScreen().catch(console.warn);
+            }
+          });
+        }
+        return;
+      }
+
+      // Arrow navigation across views
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        if (activeView !== 'welcome' && activeView !== 'consent') {
+          event.preventDefault();
+          const currentIndex = VIEW_ORDER.indexOf(activeView);
+          if (currentIndex !== -1) {
+            const nextIndex =
+              event.key === 'ArrowDown'
+                ? (currentIndex + 1) % VIEW_ORDER.length
+                : (currentIndex - 1 + VIEW_ORDER.length) % VIEW_ORDER.length;
+            setActiveView(VIEW_ORDER[nextIndex]);
+          }
+          return;
+        }
       }
 
       switch (event.key) {
@@ -102,6 +158,12 @@ export function useKeyboardNavigation(onOpenHelp?: () => void) {
         case 'm':
         case 'M':
           setMode(mode === 'live' ? 'demo' : 'live');
+          break;
+
+        // Ambient sound toggle
+        case 'a':
+        case 'A':
+          AmbientSoundEngine.getInstance().toggleMute();
           break;
 
         // Theme toggle

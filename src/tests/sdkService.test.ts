@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { SmartSpectraService, SmartSpectraState } from '../services/SmartSpectraService';
+import { SmartSpectraSDK } from '@smartspectra/node-sdk/renderer';
 import {
-  SmartSpectraSDK,
   breathingMetrics,
   cardioMetrics,
   ValidationCode,

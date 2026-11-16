@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   Eye,
@@ -113,18 +114,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenHelp, onOpenWalkthrough 
                 className={clsx(
                   'w-full flex items-center justify-center md:justify-between px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative focus-visible:ring-2 focus-visible:ring-cosmic-cyan focus-visible:outline-none',
                   isActive
-                    ? 'bg-gradient-to-r from-cosmic-cyan/15 to-cosmic-violet/15 text-white border border-cosmic-cyan/30 shadow-glow-cyan/20'
+                    ? 'text-white'
                     : 'text-slate-400 hover:text-slate-100 hover:bg-white/5 border border-transparent'
                 )}
                 aria-current={isActive ? 'page' : undefined}
                 title={item.label}
               >
-                {/* Active glow indicator on left */}
+                {/* Smooth Animated Active Pill Background */}
                 {isActive && (
-                  <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-gradient-to-b from-cosmic-cyan to-cosmic-violet" />
+                  <motion.div
+                    layoutId="activeNavPill"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-cosmic-cyan/15 to-cosmic-violet/15 border border-cosmic-cyan/35 shadow-glow-cyan/25"
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  />
                 )}
 
-                <div className="flex items-center gap-3">
+                {/* Active glow indicator on left */}
+                {isActive && (
+                  <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-gradient-to-b from-cosmic-cyan to-cosmic-violet z-10" />
+                )}
+
+                <div className="flex items-center gap-3 relative z-10">
                   <span
                     className={clsx(
                       'transition-colors duration-200 shrink-0',
@@ -140,7 +150,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenHelp, onOpenWalkthrough 
 
                 <span
                   className={clsx(
-                    'hidden md:inline text-[10px] font-mono px-1.5 py-0.5 rounded border',
+                    'hidden md:inline text-[10px] font-mono px-1.5 py-0.5 rounded border relative z-10',
                     isActive
                       ? 'border-cosmic-cyan/40 text-cosmic-cyan bg-cosmic-cyan/10'
                       : 'border-white/10 text-slate-500 group-hover:text-slate-400 bg-white/5'

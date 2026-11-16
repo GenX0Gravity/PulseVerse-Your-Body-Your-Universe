@@ -215,19 +215,19 @@ export class SmartSpectraService {
     try {
       this.setState('requestingPermission');
 
-      // 1. Acquire camera stream from mediaDevices
+      // 1. Acquire camera stream from mediaDevices with robust fallback
       const constraints: MediaStreamConstraints = {
         video: options.deviceId
           ? {
-              deviceId: { exact: options.deviceId },
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-              frameRate: { ideal: 30 },
+              deviceId: { ideal: options.deviceId },
+              width: { ideal: 1280, min: 640 },
+              height: { ideal: 720, min: 480 },
+              frameRate: { ideal: 30, min: 15 },
             }
           : {
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-              frameRate: { ideal: 30 },
+              width: { ideal: 1280, min: 640 },
+              height: { ideal: 720, min: 480 },
+              frameRate: { ideal: 30, min: 15 },
               facingMode: 'user',
             },
         audio: false,
@@ -235,7 +235,15 @@ export class SmartSpectraService {
 
       let stream: MediaStream;
       try {
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        try {
+          stream = await navigator.mediaDevices.getUserMedia(constraints);
+        } catch (firstErr) {
+          console.info(
+            '[SmartSpectraService] High-res constraints failed, falling back to default camera:',
+            firstErr
+          );
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        }
         this.mediaStream = stream;
         this.streamListeners.forEach((fn) => fn(stream));
       } catch (err: unknown) {
@@ -307,6 +315,45 @@ export class SmartSpectraService {
       }
       await this.cleanupResources();
       throw err;
+    }
+  }
+
+  /**
+   * Seamlessly switch camera devices on the fly while measuring
+   */
+  public async switchCameraDevice(deviceId: string): Promise<boolean> {
+    if (!deviceId) return false;
+    try {
+      const constraints: MediaStreamConstraints = {
+        video: {
+          deviceId: { ideal: deviceId },
+          width: { ideal: 1280, min: 640 },
+          height: { ideal: 720, min: 480 },
+          frameRate: { ideal: 30, min: 15 },
+        },
+        audio: false,
+      };
+
+      const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      if (this.mediaStream) {
+        this.mediaStream.getTracks().forEach((track) => {
+          try {
+            track.stop();
+          } catch {
+            // ignore
+          }
+        });
+      }
+      this.mediaStream = newStream;
+      this.streamListeners.forEach((fn) => fn(newStream));
+
+      if (this.sdk && typeof this.sdk.useMediaStream === 'function') {
+        this.sdk.useMediaStream(newStream);
+      }
+      return true;
+    } catch (err) {
+      console.warn('[SmartSpectraService] Could not hot-swap camera device:', err);
+      return false;
     }
   }
 

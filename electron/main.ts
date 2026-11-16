@@ -178,6 +178,25 @@ function createWindow(): BrowserWindow {
     console.log(`[Renderer]`, message);
   });
 
+  // Synchronize fullscreen state events with the renderer
+  win.on('enter-full-screen', () => {
+    win.webContents.send('pulseverse:fullscreen-changed', true);
+  });
+  win.on('leave-full-screen', () => {
+    win.webContents.send('pulseverse:fullscreen-changed', false);
+  });
+
+  // Native F11 and Escape shortcuts for immersive fullscreen
+  win.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F11' && input.type === 'keyDown') {
+      event.preventDefault();
+      win.setFullScreen(!win.isFullScreen());
+    } else if (input.key === 'Escape' && input.type === 'keyDown' && win.isFullScreen()) {
+      event.preventDefault();
+      win.setFullScreen(false);
+    }
+  });
+
   win.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
     console.error('[Electron] Failed to load:', validatedURL, errorDescription, errorCode);
   });
@@ -232,6 +251,19 @@ function setupIpcHandlers() {
 
   ipcMain.handle('pulseverse:window-close', () => {
     mainWindow?.close();
+  });
+
+  ipcMain.handle('pulseverse:window-toggle-fullscreen', () => {
+    if (mainWindow) {
+      const next = !mainWindow.isFullScreen();
+      mainWindow.setFullScreen(next);
+      return mainWindow.isFullScreen();
+    }
+    return false;
+  });
+
+  ipcMain.handle('pulseverse:is-fullscreen', () => {
+    return mainWindow?.isFullScreen() ?? false;
   });
 
   ipcMain.handle('pulseverse:is-maximized', () => {

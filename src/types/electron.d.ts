@@ -13,6 +13,9 @@ export interface PulseVerseBridge {
   maximize: () => Promise<boolean>;
   close: () => Promise<void>;
   isMaximized: () => Promise<boolean>;
+  toggleFullScreen: () => Promise<boolean>;
+  isFullScreen: () => Promise<boolean>;
+  onFullScreenChange?: (callback: (isFull: boolean) => void) => () => void;
   getAppInfo: () => Promise<AppInfo>;
   getConfigApiKey: () => Promise<string>;
   saveSession: (sessionData: unknown) => Promise<{ success: boolean; count: number }>;

@@ -1,33 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { Minus, Square, X, Activity, Sparkles } from 'lucide-react';
+import { Minus, Square, X, Activity, Sparkles, Maximize2, Minimize2 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { Badge } from '../common/Badge';
 
 export const TitleBar: React.FC = () => {
   const { mode, isSessionActive } = useAppStore();
   const [isMaximized, setIsMaximized] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
-    async function checkMaximized() {
+    async function checkWindowState() {
       if (window.pulseVerse?.isMaximized) {
         const max = await window.pulseVerse.isMaximized();
         setIsMaximized(max);
       }
+      if (window.pulseVerse?.isFullScreen) {
+        const full = await window.pulseVerse.isFullScreen();
+        setIsFullScreen(full);
+      }
     }
-    checkMaximized();
+    checkWindowState();
+
+    // Listen to Electron IPC fullscreen events if available
+    let cleanupIpc: (() => void) | undefined;
+    if (window.pulseVerse?.onFullScreenChange) {
+      cleanupIpc = window.pulseVerse.onFullScreenChange((full) => {
+        setIsFullScreen(full);
+      });
+    }
+
+    // Also listen to standard browser fullscreenchange
+    const handleBrowserFullscreen = () => {
+      setIsFullScreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleBrowserFullscreen);
+
+    return () => {
+      if (cleanupIpc) cleanupIpc();
+      document.removeEventListener('fullscreenchange', handleBrowserFullscreen);
+    };
   }, []);
 
   const handleMinimize = () => window.pulseVerse?.minimize();
+
   const handleMaximize = async () => {
     if (window.pulseVerse?.maximize) {
       const max = await window.pulseVerse.maximize();
       setIsMaximized(max);
     }
   };
+
+  const handleToggleFullScreen = async () => {
+    if (window.pulseVerse?.toggleFullScreen) {
+      const full = await window.pulseVerse.toggleFullScreen();
+      setIsFullScreen(full);
+    } else {
+      // Browser fallback
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen().catch(() => {});
+        setIsFullScreen(true);
+      } else {
+        await document.exitFullscreen().catch(() => {});
+        setIsFullScreen(false);
+      }
+    }
+  };
+
   const handleClose = () => window.pulseVerse?.close();
 
   return (
-    <div className="h-10 w-full bg-midnight-950/90 border-b border-white/5 flex items-center justify-between px-4 select-none z-50 relative app-drag-region">
+    <div
+      onDoubleClick={handleMaximize}
+      className="h-10 w-full bg-midnight-950/95 border-b border-white/5 flex items-center justify-between px-4 select-none z-50 relative app-drag-region backdrop-blur-md"
+    >
       {/* Brand & Mode */}
       <div className="flex items-center gap-3 no-drag">
         <div className="flex items-center gap-2">
@@ -46,11 +91,7 @@ export const TitleBar: React.FC = () => {
             SIMULATED DATA
           </span>
         ) : (
-          <Badge
-            variant="cyan"
-            size="sm"
-            pulse={isSessionActive}
-          >
+          <Badge variant="cyan" size="sm" pulse={isSessionActive}>
             Live Sensor
           </Badge>
         )}
@@ -62,8 +103,27 @@ export const TitleBar: React.FC = () => {
         <span>Your Body, Your Universe</span>
       </div>
 
-      {/* Window Controls (Native electron window operations) */}
+      {/* Window Controls (Native electron window operations + Fullscreen toggle) */}
       <div className="flex items-center gap-1 no-drag">
+        {/* Fullscreen Button */}
+        <button
+          onClick={handleToggleFullScreen}
+          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+            isFullScreen
+              ? 'text-cosmic-cyan bg-cosmic-cyan/15 hover:bg-cosmic-cyan/25'
+              : 'text-slate-400 hover:text-white hover:bg-white/10'
+          }`}
+          title={isFullScreen ? 'Exit Full Screen (F11 or Esc)' : 'Enter Full Screen (F11)'}
+          aria-label={isFullScreen ? 'Exit Full Screen' : 'Enter Full Screen'}
+        >
+          {isFullScreen ? (
+            <Minimize2 className="w-3.5 h-3.5 text-cosmic-cyan" />
+          ) : (
+            <Maximize2 className="w-3.5 h-3.5" />
+          )}
+        </button>
+
+        {/* Minimize Button */}
         <button
           onClick={handleMinimize}
           className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
@@ -72,6 +132,8 @@ export const TitleBar: React.FC = () => {
         >
           <Minus className="w-3.5 h-3.5" />
         </button>
+
+        {/* Maximize / Restore Button */}
         <button
           onClick={handleMaximize}
           className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
@@ -80,6 +142,8 @@ export const TitleBar: React.FC = () => {
         >
           <Square className="w-3 h-3" />
         </button>
+
+        {/* Close Button */}
         <button
           onClick={handleClose}
           className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-rose-500/80 transition-colors"

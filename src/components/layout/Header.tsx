@@ -7,6 +7,10 @@ import {
   Zap,
   Settings,
   CameraOff,
+  Maximize2,
+  Minimize2,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { useVitalsStore } from '../../store/useVitalsStore';
@@ -14,6 +18,7 @@ import { ThemeToggle } from '../common/ThemeToggle';
 import { Button } from '../common/Button';
 import { clsx } from 'clsx';
 import { SmartSpectraService } from '../../services/SmartSpectraService';
+import { AmbientSoundEngine } from '../../services/AmbientSoundEngine';
 
 export const Header: React.FC = () => {
   const {
@@ -31,18 +36,51 @@ export const Header: React.FC = () => {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [sdkState, setSdkState] = useState<string>(() => SmartSpectraService.getInstance().getState());
   const [isCameraActive, setIsCameraActive] = useState<boolean>(() => Boolean(SmartSpectraService.getInstance().getMediaStream()));
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(() => AmbientSoundEngine.getInstance().getIsMuted());
 
-  // Subscribe to SDK state & stream updates
+  // Subscribe to SDK state & stream updates, fullscreen events, and audio mute events
   useEffect(() => {
     const service = SmartSpectraService.getInstance();
     const unsubState = service.onStateChange(setSdkState);
     const unsubStream = service.onStream((stream) => setIsCameraActive(Boolean(stream)));
+    const unsubMute = AmbientSoundEngine.getInstance().onMuteChange(setIsAudioMuted);
+
+    let unsubFs: (() => void) | undefined;
+    if (window.pulseVerse?.onFullScreenChange) {
+      unsubFs = window.pulseVerse.onFullScreenChange((full) => setIsFullScreen(full));
+    }
+    const handleBrowserFs = () => setIsFullScreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', handleBrowserFs);
 
     return () => {
       unsubState();
       unsubStream();
+      unsubMute();
+      if (unsubFs) unsubFs();
+      document.removeEventListener('fullscreenchange', handleBrowserFs);
     };
   }, []);
+
+  const handleToggleAudio = () => {
+    const next = AmbientSoundEngine.getInstance().toggleMute();
+    setIsAudioMuted(next);
+  };
+
+  const handleToggleFullScreen = async () => {
+    if (window.pulseVerse?.toggleFullScreen) {
+      const full = await window.pulseVerse.toggleFullScreen();
+      setIsFullScreen(full);
+    } else {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen().catch(() => {});
+        setIsFullScreen(true);
+      } else {
+        await document.exitFullscreen().catch(() => {});
+        setIsFullScreen(false);
+      }
+    }
+  };
 
   // Session elapsed timer
   useEffect(() => {
@@ -270,6 +308,39 @@ export const Header: React.FC = () => {
           aria-label="Open Privacy and Settings"
         >
           <Settings className="w-4 h-4" />
+        </button>
+
+        {/* Fullscreen Quick Toggle */}
+        <button
+          onClick={handleToggleFullScreen}
+          className="p-2 rounded-xl border bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all focus-visible:ring-2 focus-visible:ring-cosmic-cyan"
+          title={isFullScreen ? 'Exit Full Screen (F11 or Esc)' : 'Enter Full Screen (F11)'}
+          aria-label="Toggle Full Screen"
+        >
+          {isFullScreen ? (
+            <Minimize2 className="w-4 h-4 text-cosmic-cyan" />
+          ) : (
+            <Maximize2 className="w-4 h-4" />
+          )}
+        </button>
+
+        {/* Ambient Soothing Soundscape Button */}
+        <button
+          onClick={handleToggleAudio}
+          className={clsx(
+            'p-2 rounded-xl border transition-all focus-visible:ring-2 focus-visible:ring-purple-400',
+            !isAudioMuted
+              ? 'bg-purple-500/20 border-purple-500/40 text-purple-300 shadow-glow-violet'
+              : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
+          )}
+          title={!isAudioMuted ? 'Mute Soothing Ambient Music (432Hz)' : 'Play Calm Meditative Music (432Hz)'}
+          aria-label={!isAudioMuted ? 'Mute Ambient Music' : 'Play Ambient Music'}
+        >
+          {!isAudioMuted ? (
+            <Volume2 className="w-4 h-4 text-purple-300 animate-pulse-slow" />
+          ) : (
+            <VolumeX className="w-4 h-4" />
+          )}
         </button>
 
         {/* Dark / Light Theme Toggle */}

@@ -146,6 +146,11 @@ export const ImmersiveExperienceView: React.FC<ImmersiveExperienceViewProps> = (
 
   // Fullscreen Handler
   const toggleFullscreen = async () => {
+    if (window.pulseVerse?.toggleFullScreen) {
+      const full = await window.pulseVerse.toggleFullScreen();
+      setIsFullscreen(full);
+      return;
+    }
     if (!containerRef.current) return;
     try {
       if (!document.fullscreenElement) {
