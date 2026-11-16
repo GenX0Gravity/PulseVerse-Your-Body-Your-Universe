@@ -13,10 +13,15 @@ export default defineConfig({
     react(),
     electron([
       {
-        // Main process entry point
+        // Main process entry point (built as CommonJS for reliable native Electron runtime compatibility)
         entry: 'electron/main.ts',
         vite: {
           build: {
+            lib: {
+              entry: 'electron/main.ts',
+              formats: ['cjs'],
+              fileName: () => 'main.cjs',
+            },
             outDir: 'dist-electron',
             rollupOptions: {
               external: [

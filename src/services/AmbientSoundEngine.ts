@@ -1,45 +1,51 @@
 /**
- * PulseVerse Ambient Sound Engine — Meditative Biofeedback Soundscape
+ * PulseVerse Ambient Sound Engine — Meditative Harmonic Soundscape
  * 
- * Generates an organic, ultra-calming binaural audio environment using the Web Audio API.
+ * Generates an ultra-pure, heavenly harmonic soundscape using pure additive synthesis
+ * and spatial acoustic delay.
  * 
- * Features:
- * - 432 Hz Pythagorean / Om (136.1 Hz) warm harmonic celestial pad
- * - Brownian ocean-surf / soft wind breath swell tracking respiration
- * - Authentic Tibetan Singing Bowl harmonics triggered gently on systolic pulse peaks
- * - Smooth exponential gain crossfading (zero audio pops or clipping)
- * - Coherence-responsive harmonic overtone brightening
+ * Tuning: 432 Hz Natural Pythagorean Reference
+ * Harmonic Chord: A3 (216Hz), E4 (324Hz), A4 (432Hz), C#5 (540Hz)
+ * Zero noise generators, zero speaker distortion, zero buzzing.
  */
 
 export class AmbientSoundEngine {
   private static instance: AmbientSoundEngine | null = null;
   private ctx: AudioContext | null = null;
 
-  // Master Gain & State
+  // Master Gain & Volume
   private masterGain: GainNode | null = null;
   private isMuted: boolean = true;
-  private volume: number = 0.45;
+  private volume: number = 0.5;
 
-  // Harmonic Celestial Drone Nodes (432 Hz reference tuning)
-  private droneOsc1: OscillatorNode | null = null; // Deep warm root (108 Hz)
-  private droneOsc2: OscillatorNode | null = null; // Soft fifth (162 Hz)
-  private droneOsc3: OscillatorNode | null = null; // Gentle octave (216 Hz)
-  private droneFilter: BiquadFilterNode | null = null;
-  private droneGain: GainNode | null = null;
+  // Harmonic Chord Voices (Pure 432Hz Harmonic Spectrum)
+  private oscRoot: OscillatorNode | null = null;      // 216.0 Hz (A3 - Warm, grounded tone)
+  private oscFifth: OscillatorNode | null = null;     // 324.0 Hz (E4 - Golden fifth)
+  private oscA432: OscillatorNode | null = null;      // 432.0 Hz (A4 - Sacred Solfeggio center)
+  private oscCelestial: OscillatorNode | null = null; // 540.0 Hz (C#5 - Ethereal major third)
 
-  // Gentle LFO for organic acoustic shimmer
+  // Individual Voice Gains (for respiratory and coherence modulation)
+  private gainRoot: GainNode | null = null;
+  private gainFifth: GainNode | null = null;
+  private gainA432: GainNode | null = null;
+  private gainCelestial: GainNode | null = null;
+
+  // Silky Pad Low-Pass Filter
+  private padFilter: BiquadFilterNode | null = null;
+
+  // Spatial Ambient Delay (Cathedral Reverb Sim)
+  private delayNode: DelayNode | null = null;
+  private delayFeedback: GainNode | null = null;
+  private delayFilter: BiquadFilterNode | null = null;
+
+  // Soft Slow LFO for Gentle Acoustic Shimmer (0.05 Hz)
   private lfoOsc: OscillatorNode | null = null;
   private lfoGain: GainNode | null = null;
-
-  // Brownian Noise Breath Swell (Ocean Surf / Forest Wind)
-  private breathNoiseNode: AudioBufferSourceNode | null = null;
-  private breathFilter: BiquadFilterNode | null = null;
-  private breathGain: GainNode | null = null;
 
   // Cardiac Singing Bowl Timing
   private lastChimeTime = 0;
 
-  // Listeners for UI state sync
+  // State Sync Listeners
   private muteListeners: Set<(isMuted: boolean) => void> = new Set();
   private volumeListeners: Set<(vol: number) => void> = new Set();
 
@@ -53,7 +59,7 @@ export class AmbientSoundEngine {
   }
 
   /**
-   * Lazy initialize the Web Audio graph on first user interaction
+   * Initialize the Web Audio graph on first user interaction
    */
   private initAudio(): void {
     if (this.ctx) return;
@@ -63,99 +69,106 @@ export class AmbientSoundEngine {
       if (!AudioCtx) return;
 
       this.ctx = new AudioCtx();
-      this.masterGain = this.ctx.createGain();
-      this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
-      this.masterGain.connect(this.ctx.destination);
-
       const now = this.ctx.currentTime;
 
+      // Master output gain
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.gain.setValueAtTime(this.isMuted ? 0.0001 : this.volume, now);
+      this.masterGain.connect(this.ctx.destination);
+
       // ==========================================
-      // 1. Warm Celestial Drone (432Hz Harmonic Pad)
+      // 1. Spatial Delay / Ambient Reverb Unit
       // ==========================================
-      this.droneFilter = this.ctx.createBiquadFilter();
-      this.droneFilter.type = 'lowpass';
-      this.droneFilter.frequency.setValueAtTime(360, now); // Soft, warm rolloff
-      this.droneFilter.Q.setValueAtTime(0.7, now);
+      this.delayNode = this.ctx.createDelay(1.0);
+      this.delayNode.delayTime.setValueAtTime(0.38, now); // 380ms warm acoustic reflection
 
-      this.droneGain = this.ctx.createGain();
-      this.droneGain.gain.setValueAtTime(0.22, now);
+      this.delayFeedback = this.ctx.createGain();
+      this.delayFeedback.gain.setValueAtTime(0.32, now); // 32% feedback for airy space
 
-      // Deep root tone (108 Hz — A2 in 432Hz reference)
-      this.droneOsc1 = this.ctx.createOscillator();
-      this.droneOsc1.type = 'sine';
-      this.droneOsc1.frequency.setValueAtTime(108.0, now);
+      this.delayFilter = this.ctx.createBiquadFilter();
+      this.delayFilter.type = 'lowpass';
+      this.delayFilter.frequency.setValueAtTime(800, now); // Soft reflections, zero harshness
 
-      // Warm harmonic fifth (162 Hz)
-      this.droneOsc2 = this.ctx.createOscillator();
-      this.droneOsc2.type = 'sine';
-      this.droneOsc2.frequency.setValueAtTime(162.0, now);
+      // Delay loop: delay -> filter -> feedback -> delay
+      this.delayNode.connect(this.delayFilter);
+      this.delayFilter.connect(this.delayFeedback);
+      this.delayFeedback.connect(this.delayNode);
 
-      // Harmonic heart octave (216 Hz)
-      this.droneOsc3 = this.ctx.createOscillator();
-      this.droneOsc3.type = 'sine';
-      this.droneOsc3.frequency.setValueAtTime(216.0, now);
+      // Reverb output to master
+      this.delayFilter.connect(this.masterGain);
 
-      // LFO for slow, natural organic shimmer (0.06 Hz)
+      // ==========================================
+      // 2. Silky Celestial Low-Pass Filter
+      // ==========================================
+      this.padFilter = this.ctx.createBiquadFilter();
+      this.padFilter.type = 'lowpass';
+      this.padFilter.frequency.setValueAtTime(650, now);
+      this.padFilter.Q.setValueAtTime(0.5, now); // Buttery, gentle rolloff
+
+      this.padFilter.connect(this.masterGain);
+      this.padFilter.connect(this.delayNode); // Also send into spatial delay
+
+      // Slow 0.05 Hz LFO for gentle acoustic shimmer
       this.lfoOsc = this.ctx.createOscillator();
       this.lfoGain = this.ctx.createGain();
       this.lfoOsc.type = 'sine';
-      this.lfoOsc.frequency.setValueAtTime(0.06, now);
-      this.lfoGain.gain.setValueAtTime(40, now); // Modulates filter cutoff by +/- 40Hz
+      this.lfoOsc.frequency.setValueAtTime(0.05, now);
+      this.lfoGain.gain.setValueAtTime(50, now); // +/- 50 Hz filter modulation
 
       this.lfoOsc.connect(this.lfoGain);
-      this.lfoGain.connect(this.droneFilter.frequency);
-
-      // Connect drone oscillators through warm filter and gain to master
-      this.droneOsc1.connect(this.droneFilter);
-      this.droneOsc2.connect(this.droneFilter);
-      this.droneOsc3.connect(this.droneFilter);
-      this.droneFilter.connect(this.droneGain);
-      this.droneGain.connect(this.masterGain);
-
-      this.droneOsc1.start(now);
-      this.droneOsc2.start(now);
-      this.droneOsc3.start(now);
+      this.lfoGain.connect(this.padFilter.frequency);
       this.lfoOsc.start(now);
 
       // ==========================================
-      // 2. Brownian Ocean/Wind Breath Swell
+      // 3. Four Pure Harmonic Voices (432Hz Tuning)
       // ==========================================
-      // Brownian (red) noise has a gentle -6dB/octave slope (like distant ocean waves or soft breathing wind)
-      const bufferSize = this.ctx.sampleRate * 3;
-      const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      let lastOut = 0.0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        output[i] = (lastOut + 0.02 * white) / 1.02;
-        lastOut = output[i];
-        output[i] *= 3.8; // Gain compensation
-      }
 
-      this.breathNoiseNode = this.ctx.createBufferSource();
-      this.breathNoiseNode.buffer = noiseBuffer;
-      this.breathNoiseNode.loop = true;
+      // Voice 1: Root A3 (216 Hz) — Grounding, warm fundamental
+      this.oscRoot = this.ctx.createOscillator();
+      this.gainRoot = this.ctx.createGain();
+      this.oscRoot.type = 'sine';
+      this.oscRoot.frequency.setValueAtTime(216.0, now);
+      this.gainRoot.gain.setValueAtTime(0.18, now);
+      this.oscRoot.connect(this.gainRoot);
+      this.gainRoot.connect(this.padFilter);
+      this.oscRoot.start(now);
 
-      this.breathFilter = this.ctx.createBiquadFilter();
-      this.breathFilter.type = 'lowpass';
-      this.breathFilter.frequency.setValueAtTime(240, now);
-      this.breathFilter.Q.setValueAtTime(0.8, now);
+      // Voice 2: Fifth E4 (324 Hz) — Peaceful harmonic foundation
+      this.oscFifth = this.ctx.createOscillator();
+      this.gainFifth = this.ctx.createGain();
+      this.oscFifth.type = 'sine';
+      this.oscFifth.frequency.setValueAtTime(324.0, now);
+      this.gainFifth.gain.setValueAtTime(0.14, now);
+      this.oscFifth.connect(this.gainFifth);
+      this.gainFifth.connect(this.padFilter);
+      this.oscFifth.start(now);
 
-      this.breathGain = this.ctx.createGain();
-      this.breathGain.gain.setValueAtTime(0.06, now);
+      // Voice 3: Sacred Solfeggio Center A4 (432 Hz) — Swells with breath
+      this.oscA432 = this.ctx.createOscillator();
+      this.gainA432 = this.ctx.createGain();
+      this.oscA432.type = 'sine';
+      this.oscA432.frequency.setValueAtTime(432.0, now);
+      this.gainA432.gain.setValueAtTime(0.08, now);
+      this.oscA432.connect(this.gainA432);
+      this.gainA432.connect(this.padFilter);
+      this.oscA432.start(now);
 
-      this.breathNoiseNode.connect(this.breathFilter);
-      this.breathFilter.connect(this.breathGain);
-      this.breathGain.connect(this.masterGain);
-
-      this.breathNoiseNode.start(now);
+      // Voice 4: Celestial Major Third C#5 (540 Hz) — Expands with coherence
+      this.oscCelestial = this.ctx.createOscillator();
+      this.gainCelestial = this.ctx.createGain();
+      this.oscCelestial.type = 'sine';
+      this.oscCelestial.frequency.setValueAtTime(540.0, now);
+      this.gainCelestial.gain.setValueAtTime(0.04, now);
+      this.oscCelestial.connect(this.gainCelestial);
+      this.gainCelestial.connect(this.padFilter);
+      this.oscCelestial.start(now);
     } catch (e) {
       console.warn('AudioContext initialization notice:', e);
     }
   }
 
   /**
-   * Set mute state with smooth exponential crossfade
+   * Set mute state with smooth, click-free exponential crossfade
    */
   public setMuted(muted: boolean): boolean {
     this.isMuted = muted;
@@ -170,7 +183,7 @@ export class AmbientSoundEngine {
       const targetGain = muted ? 0.0001 : this.volume;
       const now = this.ctx.currentTime;
       this.masterGain.gain.cancelScheduledValues(now);
-      this.masterGain.gain.exponentialRampToValueAtTime(targetGain, now + 0.25);
+      this.masterGain.gain.exponentialRampToValueAtTime(targetGain, now + 0.3);
     }
 
     this.muteListeners.forEach((fn) => fn(this.isMuted));
@@ -210,7 +223,11 @@ export class AmbientSoundEngine {
   }
 
   /**
-   * Modulate audio parameters according to physiological telemetry
+   * Modulate harmonic parameters according to live physiological telemetry
+   * 
+   * - Respiration expands the upper A432 and C#5 celestial harmonies
+   * - Coherence opens the warm analog filter for radiant clarity
+   * - Cardiac peaks trigger pure Tibetan Singing Bowl tones
    */
   public updatePhysiology(
     cardiacDeflection: number,
@@ -221,78 +238,72 @@ export class AmbientSoundEngine {
 
     const now = this.ctx.currentTime;
 
-    // 1. Modulate Brownian Breath Filter & Volume (Ocean waves / Wind swell)
-    if (this.breathFilter && this.breathGain) {
-      // Gentle rolloff frequency opens from 200 Hz to 480 Hz on deep inhalation
-      const targetFreq = 200 + normalizedBreath * 280;
-      this.breathFilter.frequency.setTargetAtTime(targetFreq, now, 0.15);
-
-      // Volume swells subtly with breath (4% to 9% max volume)
-      const targetBreathVol = 0.04 + normalizedBreath * 0.05;
-      this.breathGain.gain.setTargetAtTime(targetBreathVol, now, 0.15);
+    // 1. Respiration Swell: The chord breathes naturally with your chest
+    if (this.gainA432 && this.gainCelestial) {
+      // Inhalation gently elevates the sacred 432 Hz and 540 Hz overtones
+      const targetA432Gain = 0.05 + normalizedBreath * 0.11;
+      const targetCelestialGain = 0.02 + normalizedBreath * 0.07;
+      this.gainA432.gain.setTargetAtTime(targetA432Gain, now, 0.2);
+      this.gainCelestial.gain.setTargetAtTime(targetCelestialGain, now, 0.2);
     }
 
-    // 2. Modulate Celestial Pad Harmonics by Coherence Score
-    if (this.droneOsc2 && this.droneOsc3 && this.droneFilter) {
-      // Higher coherence gently shifts harmonic pad towards crystalline 216 Hz & 270 Hz
-      const targetFifth = 162.0 + coherenceFactor * 27.0;
-      this.droneOsc2.frequency.setTargetAtTime(targetFifth, now, 0.3);
-
-      // Filter opens subtly with coherence for radiant warmth
-      const targetFilter = 320 + coherenceFactor * 120;
-      this.droneFilter.frequency.setTargetAtTime(targetFilter, now, 0.3);
+    // 2. Coherence Radiance: Higher heart-breath coherence expands filter clarity
+    if (this.padFilter) {
+      // Moves from 550 Hz (deep meditation) to 950 Hz (radiant peaceful clarity)
+      const targetCutoff = 550 + coherenceFactor * 350;
+      this.padFilter.frequency.setTargetAtTime(targetCutoff, now, 0.35);
     }
 
-    // 3. Trigger Authentic Tibetan Singing Bowl on Systolic Pulse Peak
-    if (cardiacDeflection > 0.88 && Date.now() - this.lastChimeTime > 550) {
-      this.triggerTibetanBowl(coherenceFactor);
+    // 3. Gentle Tibetan Crystal Singing Bowl on Systolic Pulse Peak
+    if (cardiacDeflection > 0.88 && Date.now() - this.lastChimeTime > 600) {
+      this.triggerCrystalBowl(coherenceFactor);
       this.lastChimeTime = Date.now();
     }
   }
 
   /**
-   * Trigger a rich, peaceful Tibetan Singing Bowl harmonic resonance
+   * Trigger a warm, pure Crystal Singing Bowl harmonic chime
    */
-  private triggerTibetanBowl(coherence: number): void {
-    if (!this.ctx || !this.masterGain) return;
+  private triggerCrystalBowl(coherence: number): void {
+    if (!this.ctx || !this.masterGain || !this.delayNode) return;
 
     try {
       const now = this.ctx.currentTime;
-      const fundamental = coherence > 0.65 ? 432.0 : 324.0; // 432 Hz Solfeggio fundamental
-      const harmonic = fundamental * 2; // Overtone
+      // 528 Hz ("Transformation / Peace" Solfeggio) or 432 Hz harmonic
+      const fundamental = coherence > 0.65 ? 528.0 : 432.0;
+      const overtone = fundamental * 1.5; // Pure perfect fifth overtone
 
-      // Fundamental oscillator
       const osc1 = this.ctx.createOscillator();
       const gain1 = this.ctx.createGain();
       osc1.type = 'sine';
       osc1.frequency.setValueAtTime(fundamental, now);
 
-      // Harmonic overtone oscillator (softer)
       const osc2 = this.ctx.createOscillator();
       const gain2 = this.ctx.createGain();
       osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(harmonic, now);
+      osc2.frequency.setValueAtTime(overtone, now);
 
-      // Gentle attack (35ms) and long serene exponential release (1.8s)
+      // Smooth 50ms attack (zero clicks) and luxurious 2.2s exponential decay
       gain1.gain.setValueAtTime(0.0001, now);
-      gain1.gain.exponentialRampToValueAtTime(0.07, now + 0.035);
-      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+      gain1.gain.exponentialRampToValueAtTime(0.065, now + 0.05);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
 
       gain2.gain.setValueAtTime(0.0001, now);
-      gain2.gain.exponentialRampToValueAtTime(0.025, now + 0.035);
-      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+      gain2.gain.exponentialRampToValueAtTime(0.02, now + 0.05);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
 
       osc1.connect(gain1);
       gain1.connect(this.masterGain);
+      gain1.connect(this.delayNode); // Send bowl resonance into ambient delay
 
       osc2.connect(gain2);
       gain2.connect(this.masterGain);
 
       osc1.start(now);
-      osc1.stop(now + 1.85);
+      osc1.stop(now + 2.25);
 
       osc2.start(now);
-      osc2.stop(now + 1.25);
+      osc2.stop(now + 1.45);
     } catch {
       // Ignore background audio limits
     }

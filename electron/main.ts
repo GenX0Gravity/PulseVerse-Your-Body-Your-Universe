@@ -4,8 +4,9 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import fs from 'fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const _currentDir = typeof __dirname !== 'undefined' 
+  ? __dirname 
+  : (typeof import.meta !== 'undefined' && import.meta.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd());
 
 // In packaged Electron builds, native DLLs cannot be loaded from inside the virtual asar archive.
 // Explicitly resolve and set SMARTSPECTRA_CAPI_PATH to the physical disk location in app.asar.unpacked.
@@ -22,9 +23,9 @@ if (!process.env.SMARTSPECTRA_CAPI_PATH) {
           'smartspectra_capi.dll'
         )
       : '',
-    // Packaged build: relative from __dirname in dist-electron inside app.asar
+    // Packaged build: relative from _currentDir in dist-electron inside app.asar
     path.join(
-      __dirname,
+      _currentDir,
       '../../app.asar.unpacked',
       'node_modules',
       '@smartspectra',
@@ -43,7 +44,7 @@ if (!process.env.SMARTSPECTRA_CAPI_PATH) {
     ),
     // Development mode in workspace
     path.join(
-      __dirname,
+      _currentDir,
       '../node_modules',
       '@smartspectra',
       'node-sdk-win32-x64',
@@ -62,10 +63,13 @@ if (!process.env.SMARTSPECTRA_CAPI_PATH) {
   }
 }
 
-const require = createRequire(import.meta.url);
+const req = typeof require !== 'undefined' 
+  ? require 
+  : (typeof import.meta !== 'undefined' && import.meta.url ? createRequire(import.meta.url) : createRequire(process.cwd()));
+
 let bindSmartSpectraIpc: any = null;
 try {
-  const sdkMain = require('@smartspectra/node-sdk/main');
+  const sdkMain = req('@smartspectra/node-sdk/main');
   bindSmartSpectraIpc = sdkMain.bindSmartSpectraIpc;
 } catch (loadErr: unknown) {
   const err = loadErr as Error;
@@ -83,9 +87,9 @@ const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
 
 function createWindow(): BrowserWindow {
   const preloadCandidate = [
-    path.join(__dirname, 'preload.cjs'),
-    path.join(__dirname, 'preload.js'),
-  ].find((p) => fs.existsSync(p)) || path.join(__dirname, 'preload.cjs');
+    path.join(_currentDir, 'preload.cjs'),
+    path.join(_currentDir, 'preload.js'),
+  ].find((p) => fs.existsSync(p)) || path.join(_currentDir, 'preload.cjs');
 
   const win = new BrowserWindow({
     width: 1440,
@@ -170,7 +174,7 @@ function createWindow(): BrowserWindow {
   } else if (isDev) {
     win.loadURL('http://localhost:5173');
   } else {
-    win.loadFile(path.join(__dirname, '../dist/index.html'));
+    win.loadFile(path.join(_currentDir, '../dist/index.html'));
   }
 
   // Forward renderer console logs and errors to terminal for debugging

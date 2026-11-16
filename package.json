@@ -2,7 +2,7 @@
   "name": "pulseverse",
   "version": "1.0.0",
   "description": "PulseVerse — Your Body, Your Universe: A privacy-conscious, immersive human-sensing desktop experience powered by Presage SmartSpectra SDK.",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/main.cjs",
   "type": "module",
   "author": "PulseVerse Team",
   "license": "MIT",
