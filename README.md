@@ -131,7 +131,7 @@ PulseVerse can be navigated entirely hands-free via accessible keyboard shortcut
 ### 1. Installation
 ```bash
 git clone https://github.com/GenX0Gravity/PulseVerse-Your-Body-Your-Universe.git
-cd PulseVerse-SmartSpectra-Human-Sensing
+cd PulseVerse-Your-Body-Your-Universe
 npm install
 ```
 
@@ -156,7 +156,7 @@ npm run test:e2e   # Playwright end-to-end integration tests
 
 ### 5. Desktop Windows x64 Distribution
 ```bash
-npm run pack       # Builds standalone executable at release/win-unpacked/PulseVerse.exe
+npm run pack       # Builds standalone executable at release-app/win-unpacked/PulseVerse.exe
 ```
 
 ---
