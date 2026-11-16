@@ -8,6 +8,39 @@ const _currentDir = typeof __dirname !== 'undefined'
   ? __dirname 
   : (typeof import.meta !== 'undefined' && import.meta.url ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd());
 
+// Safely load local .env variables into process.env if present
+function loadLocalEnv() {
+  const envPaths = [
+    path.join(process.cwd(), '.env'),
+    path.join(_currentDir, '.env'),
+    path.join(_currentDir, '..', '.env'),
+    process.resourcesPath ? path.join(process.resourcesPath, '.env') : '',
+  ].filter(Boolean);
+
+  for (const envPath of envPaths) {
+    if (fs.existsSync(envPath)) {
+      try {
+        const content = fs.readFileSync(envPath, 'utf-8');
+        for (const line of content.split(/\r?\n/)) {
+          const trimmed = line.trim();
+          if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+            const idx = trimmed.indexOf('=');
+            const key = trimmed.slice(0, idx).trim();
+            const val = trimmed.slice(idx + 1).trim().replace(/^['"]|['"]$/g, '');
+            if (!process.env[key]) {
+              process.env[key] = val;
+            }
+          }
+        }
+        break;
+      } catch {
+        // ignore
+      }
+    }
+  }
+}
+loadLocalEnv();
+
 // In packaged Electron builds, native DLLs cannot be loaded from inside the virtual asar archive.
 // Explicitly resolve and set SMARTSPECTRA_CAPI_PATH to the physical disk location in app.asar.unpacked.
 if (!process.env.SMARTSPECTRA_CAPI_PATH) {

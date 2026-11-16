@@ -12,6 +12,7 @@ interface SettingsState {
   savedSessions: SessionRecord[];
 
   setApiKey: (key: string) => void;
+  initApiKey: () => Promise<void>;
   setCameraDeviceId: (id: string) => void;
   setMetricEnabled: (metric: 'cardio' | 'breathing' | 'face', enabled: boolean) => void;
   updateExperienceSettings: (settings: Partial<ExperienceSettings>) => void;
@@ -20,8 +21,8 @@ interface SettingsState {
   purgeAllLocalData: () => Promise<void>;
 }
 
-export const useSettingsStore = create<SettingsState>((set) => ({
-  apiKey: import.meta.env.VITE_SMARTSPECTRA_API_KEY || '9RENVLzcBk7eqSMacoi4khdlGLFGYpf60NiVd0Lf',
+export const useSettingsStore = create<SettingsState>((set, get) => ({
+  apiKey: import.meta.env.VITE_SMARTSPECTRA_API_KEY || '',
   cameraDeviceId: '',
   enableCardioMetrics: true,
   enableBreathingMetrics: true,
@@ -37,6 +38,18 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   savedSessions: [],
 
   setApiKey: (key) => set({ apiKey: key }),
+  initApiKey: async () => {
+    if (typeof window !== 'undefined' && window.pulseVerse && typeof window.pulseVerse.getConfigApiKey === 'function') {
+      try {
+        const key = await window.pulseVerse.getConfigApiKey();
+        if (key && !get().apiKey) {
+          set({ apiKey: key });
+        }
+      } catch (err) {
+        console.warn('Notice loading environment API key:', err);
+      }
+    }
+  },
   setCameraDeviceId: (id) => set({ cameraDeviceId: id }),
   setMetricEnabled: (metric, enabled) => {
     if (metric === 'cardio') set({ enableCardioMetrics: enabled });

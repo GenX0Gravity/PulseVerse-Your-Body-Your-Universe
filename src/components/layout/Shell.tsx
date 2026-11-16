@@ -6,7 +6,7 @@ import { Modal } from '../common/Modal';
 import { OnboardingWalkthroughModal } from '../common/OnboardingWalkthroughModal';
 import { FloatingCameraHUD } from '../camera/FloatingCameraHUD';
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation';
-import { useSmartSpectra } from '../../hooks/useSmartSpectra';
+import { useSessionCoordinator } from '../../hooks/useSessionCoordinator';
 
 interface ShellProps {
   children: React.ReactNode;
@@ -19,8 +19,8 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
   // Activate keyboard navigation listeners
   useKeyboardNavigation(() => setIsHelpOpen(true));
 
-  // Activate background SmartSpectra pipeline listener
-  useSmartSpectra();
+  // Centralized session coordinator (single-flight SmartSpectra management & store sync)
+  useSessionCoordinator();
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-midnight-950 text-slate-100 select-none">

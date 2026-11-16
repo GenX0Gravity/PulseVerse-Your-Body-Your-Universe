@@ -88,8 +88,8 @@ export class SmartSpectraService {
   private state: SmartSpectraState = 'idle';
 
   // Concurrency guards to prevent racing start/stop calls
-  private isStarting = false;
-  private isStopping = false;
+  private startPromise: Promise<void> | null = null;
+  private stopPromise: Promise<void> | null = null;
 
   // Real-time waveform & HRV derivation from live camera pulse
   private pulsePhase = 0;
@@ -222,16 +222,35 @@ export class SmartSpectraService {
       throw new Error('User consent must be explicitly granted before activating camera sensing.');
     }
 
-    if (this.isStarting || this.isStopping) {
-      console.log('[SmartSpectraService] Session start skipped: transition already in progress');
+    if (this.startPromise) {
+      return this.startPromise;
+    }
+
+    if (this.state === 'measuring') {
       return;
     }
 
-    if (this.state === 'measuring' || this.state === 'initializing') {
-      return;
+    if (this.stopPromise) {
+      try {
+        await this.stopPromise;
+      } catch {
+        // ignore
+      }
     }
 
-    this.isStarting = true;
+    this.startPromise = this.executeStartSession(options);
+    try {
+      await this.startPromise;
+    } finally {
+      this.startPromise = null;
+    }
+  }
+
+  private async executeStartSession(options: {
+    apiKey?: string;
+    deviceId?: string;
+    hasUserConsented: boolean;
+  }): Promise<void> {
     this.lastError = null;
     this.resetVitals();
 
@@ -300,32 +319,32 @@ export class SmartSpectraService {
       this.setState('initializing');
 
       if (this.isElectronBridgeAvailable()) {
-        // 2. Initialize official SmartSpectraSDK instance via Electron native C-ABI bridge
-        // Use the basic metrics bundle (pulse rate + breathing) recommended by Presage
-        // for zero network model-load requirements and instant CPU initialization.
-        const requestedMetrics = [
-          MetricType.PULSE_RATE, // 15: Optical pulse rate rPPG
-          ...breathingMetrics,   // 0: CHEST_BREATHING, 1: ABDOMEN_BREATHING, 2: BREATHING_RATE
-        ];
+        try {
+          // Initialize official SmartSpectraSDK instance via Electron native C-ABI bridge
+          const requestedMetrics = options.apiKey
+            ? [MetricType.PULSE_RATE, ...breathingMetrics]
+            : [...breathingMetrics];
 
-        const sdk = new SmartSpectraSDK({
-          apiKey: options.apiKey || undefined,
-          requestedMetrics,
-          enableTelemetry: false, // Privacy opt-out: no telemetry packets sent to external servers
-          sendTimeoutMs: 30000,   // Robust timeout for camera graph setup
-        });
+          const sdk = new SmartSpectraSDK({
+            apiKey: options.apiKey || undefined,
+            requestedMetrics,
+            enableTelemetry: false,
+            sendTimeoutMs: 15000,
+          });
 
-        this.sdk = sdk;
+          this.sdk = sdk;
+          this.setupSdkEventListeners(sdk);
+          sdk.useMediaStream(stream);
 
-        // 3. Register SDK event handlers
-        this.setupSdkEventListeners(sdk);
-
-        // 4. Pass stream into SDK
-        sdk.useMediaStream(stream);
-
-        // 5. Begin processing
-        await sdk.start();
-        this.setState('measuring');
+          await sdk.start();
+          this.setState('measuring');
+          // Start responsive optical sensing monitor alongside so biofeedback is always uninterrupted
+          this.startWebOpticalSensing(stream);
+        } catch (nativeErr) {
+          console.warn('[SmartSpectraService] Native SDK notice, activating local optical sensing:', nativeErr);
+          this.startWebOpticalSensing(stream);
+          this.setState('measuring');
+        }
       } else {
         // In Web browser mode (e.g. Vercel deployment), activate browser optical camera sensing
         this.startWebOpticalSensing(stream);
@@ -346,8 +365,6 @@ export class SmartSpectraService {
       }
       await this.cleanupResources();
       throw err;
-    } finally {
-      this.isStarting = false;
     }
   }
 
@@ -394,12 +411,28 @@ export class SmartSpectraService {
    * Stop session and safely release camera resources
    */
   public async stopSession(): Promise<void> {
-    if (this.isStopping) return;
+    if (this.stopPromise) return this.stopPromise;
     if (this.state === 'idle' || this.state === 'stopped') {
       return;
     }
 
-    this.isStopping = true;
+    if (this.startPromise) {
+      try {
+        await this.startPromise;
+      } catch {
+        // ignore
+      }
+    }
+
+    this.stopPromise = this.executeStopSession();
+    try {
+      await this.stopPromise;
+    } finally {
+      this.stopPromise = null;
+    }
+  }
+
+  private async executeStopSession(): Promise<void> {
     this.setState('stopping');
 
     try {
@@ -415,8 +448,7 @@ export class SmartSpectraService {
         if (this.state === 'stopped') {
           this.setState('idle');
         }
-      }, 500);
-      this.isStopping = false;
+      }, 300);
     }
   }
 
@@ -464,7 +496,10 @@ export class SmartSpectraService {
     video.srcObject = stream;
     video.muted = true;
     video.playsInline = true;
-    video.play().catch(() => {});
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {});
+    }
     this.webVideoEl = video;
 
     const canvas = document.createElement('canvas');
@@ -588,6 +623,15 @@ export class SmartSpectraService {
 
     // 5. error: error event from native SDK
     sdk.on('error', (code: SmartSpectraErrorCodeValue, message: string, retryable: boolean) => {
+      // If error is model download or startup watchdog stall, auto-fallback to optical sensing
+      if (message && (message.includes('stalled at Starting') || message.includes('model download') || code === 8)) {
+        console.warn('[SmartSpectraService] Model download stall caught; seamlessly switching to local optical sensing:', message);
+        if (this.mediaStream) {
+          this.startWebOpticalSensing(this.mediaStream);
+        }
+        this.setState('measuring');
+        return;
+      }
       const errorInfo = this.interpretErrorCode(code, message, retryable);
       this.lastError = errorInfo;
       this.setState('error');
