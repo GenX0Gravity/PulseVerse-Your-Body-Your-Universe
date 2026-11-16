@@ -44,3 +44,5 @@ desktop.ini
 *.sln
 *.sw?
 .eslintcache
+
+.vercel
