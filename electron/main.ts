@@ -1,8 +1,11 @@
 import { app, BrowserWindow, ipcMain, session } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 import fs from 'fs';
-import { bindSmartSpectraIpc } from '@smartspectra/node-sdk/main';
+
+const require = createRequire(import.meta.url);
+const { bindSmartSpectraIpc } = require('@smartspectra/node-sdk/main');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
